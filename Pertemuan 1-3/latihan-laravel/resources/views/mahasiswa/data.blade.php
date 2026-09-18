@@ -22,11 +22,12 @@
     <tbody>
         @foreach ($daftarMahasiswa as $mahasiswa)
         <tr>
-            <td>{{ $mahasiswa->nim }}</td>
+             <td><a href="{{ route('mahasiswa.detail', $mahasiswa) }}">{{ $mahasiswa->nim }}</a></td>
             <td>{{ $mahasiswa->nama }}</td>
             <td>{{ $mahasiswa->programStudi->nama }}</td>
             <td>{{ $mahasiswa->angkatan }}</td>
             <td>{{ $mahasiswa->ipk }}</td>
+           
         </tr>
         @endforeach
     </tbody>

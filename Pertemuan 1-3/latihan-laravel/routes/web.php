@@ -49,3 +49,9 @@ Route::get('/data-matakuliah/{kode}', [MataKuliahController::class, 'show'])->na
 
 Route::get('/mahasiswa-data', [MahasiswaWebController::class,
 'index'])->name('mahasiswa.data');
+
+Route::get('/mahasiswa-data/{mahasiswa}', [MahasiswaWebController::class, 'show'])
+    ->name('mahasiswa.detail');
+
+Route::get('/mahasiswa-top-ipk', [MahasiswaWebController::class, 'topIpk'])
+    ->name('mahasiswa.top-ipk');
