@@ -55,6 +55,8 @@ class AuthController extends Controller
                 'pesan' => 'Email atau kata sandi tidak sesuai',
             ], 401);
         }
+        
+        $pengguna->forceFill(['terakhir_login' => now()])->save();
 
         $kemampuan = $pengguna->peran === 'admin'
             ? ['mahasiswa:baca', 'mahasiswa:tulis']
@@ -110,6 +112,36 @@ class AuthController extends Controller
         return response()->json([
             'sukses' => true,
             'pesan' => 'Seluruh sesi perangkat telah diakhiri',
+        ]);
+    }
+
+    public function ubahPassword(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'password_lama' => ['required', 'string'],
+            'password' => ['required', 'confirmed', 'different:password_lama',
+                Password::min(8)->letters()->numbers()],
+        ]);
+
+        $pengguna = $request->user();
+
+        if (! Hash::check($data['password_lama'], $pengguna->password)) {
+            return response()->json([
+                'sukses' => false,
+                'pesan' => 'Kata sandi lama tidak sesuai',
+            ], 422);
+        }
+
+        $pengguna->update(['password' => Hash::make($data['password'])]);
+
+        // Akhiri sesi di perangkat lain, pertahankan token yang sedang dipakai
+        $pengguna->tokens()
+            ->where('id', '!=', $pengguna->currentAccessToken()->id)
+            ->delete();
+
+        return response()->json([
+            'sukses' => true,
+            'pesan' => 'Kata sandi berhasil diubah',
         ]);
     }
 }

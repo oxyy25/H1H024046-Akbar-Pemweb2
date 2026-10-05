@@ -1,0 +1,493 @@
+{
+  "info": {
+    "name": "Pemweb2 - Modul 5 Skenario Pengujian Auth",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000/api"
+    },
+    {
+      "key": "admin_email",
+      "value": "admin@unsoed.ac.id"
+    },
+    {
+      "key": "admin_password",
+      "value": "rahasia123"
+    },
+    {
+      "key": "mhs_email",
+      "value": ""
+    },
+    {
+      "key": "mhs_password",
+      "value": "rahasia123"
+    },
+    {
+      "key": "token_admin",
+      "value": ""
+    },
+    {
+      "key": "token_mhs",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "0. Setup - Registrasi mahasiswa (akun uji)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/auth/register",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "auth",
+            "register"
+          ]
+        },
+        "description": "Jalankan sekali. Membuat akun mahasiswa dengan email acak.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Mahasiswa Uji\",\n  \"email\": \"{{mhs_email}}\",\n  \"password\": \"{{mhs_password}}\",\n  \"password_confirmation\": \"{{mhs_password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (!pm.collectionVariables.get(\"mhs_email\")) {",
+              "  pm.collectionVariables.set(\"mhs_email\", \"mhs\" + Date.now() + \"@unsoed.ac.id\");",
+              "}"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+              "const d = pm.response.json();",
+              "pm.test(\"Peran mahasiswa\", () => pm.expect(d.data.pengguna.peran).to.eql(\"mahasiswa\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Skenario 1 - Login berhasil (admin)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/auth/login",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        },
+        "description": "",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{admin_email}}\",\n  \"password\": \"{{admin_password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+              "const d = pm.response.json();",
+              "pm.test(\"sukses = true\", () => pm.expect(d.sukses).to.be.true);",
+              "pm.test(\"Token berupa string\", () => pm.expect(d.data.token).to.be.a(\"string\"));",
+              "pm.test(\"Peran admin\", () => pm.expect(d.data.pengguna.peran).to.eql(\"admin\"));",
+              "pm.collectionVariables.set(\"token_admin\", d.data.token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Skenario 2 - Login gagal (sandi salah)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/auth/login",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        },
+        "description": "",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{admin_email}}\",\n  \"password\": \"sandi-salah-123\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status 401\", () => pm.response.to.have.status(401));",
+              "const d = pm.response.json();",
+              "pm.test(\"sukses = false\", () => pm.expect(d.sukses).to.be.false);",
+              "pm.test(\"Tidak ada token\", () => pm.expect(d.data).to.be.undefined);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Skenario 3 - Akses profil tanpa token",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/auth/profil",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "auth",
+            "profil"
+          ]
+        },
+        "description": "Authorization = No Auth. Pesan hanya cocok jika Langkah 10 (bootstrap/app.php) sudah dikerjakan.",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status 401\", () => pm.response.to.have.status(401));",
+              "const d = pm.response.json();",
+              "pm.test(\"sukses = false\", () => pm.expect(d.sukses).to.be.false);",
+              "pm.test(\"Pesan token\", () => pm.expect(d.pesan).to.eql(\"Token tidak valid atau belum dikirim\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Profil admin (token valid)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/auth/profil",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "auth",
+            "profil"
+          ]
+        },
+        "description": "",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_admin}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Admin punya kemampuan tulis\", () => pm.expect(pm.response.json().data.kemampuan).to.include(\"mahasiswa:tulis\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Login mahasiswa",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/auth/login",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        },
+        "description": "",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{mhs_email}}\",\n  \"password\": \"{{mhs_password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+              "const d = pm.response.json();",
+              "pm.test(\"Peran mahasiswa\", () => pm.expect(d.data.pengguna.peran).to.eql(\"mahasiswa\"));",
+              "pm.collectionVariables.set(\"token_mhs\", d.data.token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Skenario 5 - POST /mahasiswa tanpa kemampuan tulis",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/mahasiswa",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "mahasiswa"
+          ]
+        },
+        "description": "Token mahasiswa hanya punya mahasiswa:baca. Ditolak middleware sebelum validasi, jadi isi body tidak berpengaruh.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nim\": \"G1A000001\",\n  \"nama\": \"Uji Coba\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_mhs}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status 403\", () => pm.response.to.have.status(403));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Skenario 4a - Logout (mahasiswa)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/auth/logout",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "auth",
+            "logout"
+          ]
+        },
+        "description": "",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_mhs}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Pesan logout\", () => pm.expect(pm.response.json().pesan).to.eql(\"Logout berhasil\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Skenario 4b - Profil dengan token setelah logout",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/auth/profil",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "auth",
+            "profil"
+          ]
+        },
+        "description": "Memakai token_mhs yang sama dengan 4a.",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_mhs}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status 401 (token sudah dihapus)\", () => pm.response.to.have.status(401));",
+              "pm.test(\"sukses = false\", () => pm.expect(pm.response.json().sukses).to.be.false);"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
