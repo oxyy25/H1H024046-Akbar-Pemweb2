@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -10,6 +11,7 @@ type Konfigurasi struct {
 	NamaAplikasi string
 	Port         string
 	Lingkungan   string
+	KunciApi     string
 }
 
 func Muat() Konfigurasi {
@@ -18,6 +20,7 @@ func Muat() Konfigurasi {
 		NamaAplikasi: ambil("APP_NAME", "Fiber API"),
 		Port:         ambil("APP_PORT", "3000"),
 		Lingkungan:   ambil("APP_ENV", "local"),
+		KunciApi:     strings.TrimSpace(ambil("API_KEY", "")),
 	}
 }
 
