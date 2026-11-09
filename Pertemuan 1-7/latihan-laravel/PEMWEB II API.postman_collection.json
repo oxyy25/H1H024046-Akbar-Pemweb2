@@ -1,0 +1,454 @@
+{
+  "info": {
+    "_postman_id": "b4c19ab8-ba62-4121-bfce-af4090a80209",
+    "name": "PEMWEB II API",
+    "description": "Koleksi pengujian API Pemrograman Web II Modul 4 (Laravel 13). Variabel base_url = http://127.0.0.1:8000/api. Semua request memakai header Accept: application/json.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "57930412"
+  },
+  "item": [
+    {
+      "name": "Get Status",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/status",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Mahasiswa - List",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/mahasiswa?per_halaman=10",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "mahasiswa"
+          ],
+          "query": [
+            {
+              "key": "per_halaman",
+              "value": "10"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Mahasiswa - Filter dan Pagination",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/mahasiswa?angkatan=2023&per_halaman=5&urut=ipk&arah=desc",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "mahasiswa"
+          ],
+          "query": [
+            {
+              "key": "angkatan",
+              "value": "2023"
+            },
+            {
+              "key": "per_halaman",
+              "value": "5"
+            },
+            {
+              "key": "urut",
+              "value": "ipk"
+            },
+            {
+              "key": "arah",
+              "value": "desc"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Mahasiswa - Fields Filter",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/mahasiswa?fields=nim,nama&per_halaman=5",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "mahasiswa"
+          ],
+          "query": [
+            {
+              "key": "fields",
+              "value": "nim,nama"
+            },
+            {
+              "key": "per_halaman",
+              "value": "5"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Mahasiswa - Create",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"program_studi_id\": 1,\n    \"nim\": \"H1A125999\",\n    \"nama\": \"Dewi Anggraini\",\n    \"email\": \"dewi.anggraini@example.com\",\n    \"angkatan\": 2025,\n    \"ipk\": 3.65\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/mahasiswa",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "mahasiswa"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Mahasiswa - Show",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/mahasiswa/2",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "mahasiswa",
+            "2"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Mahasiswa - Update",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"ipk\": 3.9\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/mahasiswa/2",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "mahasiswa",
+            "2"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Mahasiswa - Delete",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/mahasiswa/1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "mahasiswa",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Mahasiswa - Not Found",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/mahasiswa/99999",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "mahasiswa",
+            "99999"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Program Studi - Mahasiswa",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/program-studi/1/mahasiswa?per_halaman=10",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "program-studi",
+            "1",
+            "mahasiswa"
+          ],
+          "query": [
+            {
+              "key": "per_halaman",
+              "value": "10"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Matakuliah - List",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/matakuliah?per_halaman=10",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "matakuliah"
+          ],
+          "query": [
+            {
+              "key": "per_halaman",
+              "value": "10"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Matakuliah - Create",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"kode\": \"TK202\",\n    \"nama\": \"Pemrograman Web II\",\n    \"sks\": 3,\n    \"semester\": 5\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/matakuliah",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "matakuliah"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Matakuliah - Show",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/matakuliah/1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "matakuliah",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Matakuliah - Update",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"sks\": 4\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/matakuliah/1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "matakuliah",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Matakuliah - Delete",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/matakuliah/1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "matakuliah",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000/api"
+    }
+  ]
+}
