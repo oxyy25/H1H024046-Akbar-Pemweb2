@@ -9,6 +9,7 @@ import (
 
 	"latihan-fiber-api/internal/model"
 	"latihan-fiber-api/internal/repository"
+	"latihan-fiber-api/internal/validasi"
 )
 
 func DaftarMahasiswa(c fiber.Ctx) error {
@@ -79,9 +80,13 @@ func BuatMahasiswa(c fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "Format body tidak valid")
 	}
 
-	aktif := true
-	if permintaan.Aktif != nil {
-		aktif = *permintaan.Aktif
+	galat := validasi.Periksa(permintaan)
+	if galat != nil {
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{
+			"sukses": false,
+			"pesan":  "Data yang dikirim tidak valid",
+			"galat":  galat,
+		})
 	}
 
 	mahasiswa := model.Mahasiswa{
@@ -91,7 +96,6 @@ func BuatMahasiswa(c fiber.Ctx) error {
 		Email:          permintaan.Email,
 		Angkatan:       permintaan.Angkatan,
 		Ipk:            permintaan.Ipk,
-		Aktif:          aktif,
 	}
 
 	err = repository.Simpan(&mahasiswa)
