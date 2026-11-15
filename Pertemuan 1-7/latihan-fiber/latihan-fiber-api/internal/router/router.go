@@ -40,4 +40,7 @@ func Daftarkan(app *fiber.App, konf config.Konfigurasi) {
 
 	programStudi := terlindungi.Group("/program-studi")
 	programStudi.Get("/", handler.DaftarProgramStudi)
+
+	terlindungi.Post("/auth/segarkan", handler.Segarkan)
+	terlindungi.Post("/auth/logout", handler.Logout)
 }

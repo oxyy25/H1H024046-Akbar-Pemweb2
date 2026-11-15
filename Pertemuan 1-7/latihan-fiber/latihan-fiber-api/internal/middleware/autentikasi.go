@@ -8,6 +8,7 @@ import (
 
 	"latihan-fiber-api/internal/auth"
 	"latihan-fiber-api/internal/config"
+	"latihan-fiber-api/internal/model"
 )
 
 func Autentikasi() fiber.Handler {
@@ -32,7 +33,22 @@ func Autentikasi() fiber.Handler {
 		if err != nil {
 			return fiber.NewError(fiber.StatusUnauthorized, "Isi token tidak sesuai")
 		}
+				if klaim.ExpiresAt == nil {
+			return fiber.NewError(fiber.StatusUnauthorized, "Isi token tidak sesuai")
+		}
 
+		var jumlah int64
+		err = config.DB.Model(&model.TokenDaftarHitam{}).
+			Where("jti = ?", klaim.ID).Count(&jumlah).Error
+		if err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, "Gagal memeriksa token")
+		}
+		if jumlah > 0 {
+			return fiber.NewError(fiber.StatusUnauthorized, "Token sudah dicabut")
+		}
+
+		c.Locals("jti", klaim.ID)
+		c.Locals("kedaluwarsa", klaim.ExpiresAt.Time)
 		c.Locals("id_pengguna", uint(id))
 		c.Locals("peran", klaim.Peran)
 		return c.Next()
