@@ -5,10 +5,10 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/cors"
 	"github.com/gofiber/fiber/v3/middleware/logger"
 	recoverer "github.com/gofiber/fiber/v3/middleware/recover"
 	"github.com/gofiber/fiber/v3/middleware/requestid"
-	"github.com/gofiber/fiber/v3/middleware/cors"
 
 	"latihan-fiber-api/internal/config"
 	"latihan-fiber-api/internal/middleware"
@@ -30,15 +30,8 @@ func main() {
 	app.Use(recoverer.New())
 	app.Use(middleware.WaktuProses())
 
-	router.Daftarkan(app, konf)
-
-	app.Use(func(c fiber.Ctx) error {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"sukses": false,
-			"pesan":  "Endpoint tidak tersedia",
-		})
-	})
-
+	// CORS harus terdaftar sebelum router, supaya preflight OPTIONS
+	// dijawab di sini dan tidak jatuh ke middleware Autentikasi.
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: []string{
 			"http://localhost:5173",
@@ -56,8 +49,18 @@ func main() {
 			"Content-Type",
 			"Accept",
 			"Authorization",
+			"X-Api-Key",
 		},
-		}))
+	}))
+
+	router.Daftarkan(app, konf)
+
+	app.Use(func(c fiber.Ctx) error {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"sukses": false,
+			"pesan":  "Endpoint tidak tersedia",
+		})
+	})
 
 	log.Fatal(app.Listen(":" + konf.Port))
 }
@@ -80,7 +83,4 @@ func penanganGalat(c fiber.Ctx, err error) error {
 		"sukses": false,
 		"pesan":  pesan,
 	})
-
-	
-
 }

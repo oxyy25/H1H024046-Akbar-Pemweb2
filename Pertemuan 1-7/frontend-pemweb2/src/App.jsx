@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom'
 import Login from './halaman/Login'
 import DaftarMahasiswa from './halaman/DaftarMahasiswa'
 import RuteTerlindungi from './komponen/RuteTerlindungi'
+import FormMahasiswa from './halaman/FormMahasiswa'
 
 export default function App() {
   return (
@@ -17,6 +18,14 @@ export default function App() {
           }
         />
         <Route path="*" element={<Navigate to="/mahasiswa" replace />} />
+        <Route
+          path="/mahasiswa/tambah"
+          element={
+            <RuteTerlindungi>
+              <FormMahasiswa />
+            </RuteTerlindungi>
+          }
+        />
       </Routes>
     </BrowserRouter>
   )

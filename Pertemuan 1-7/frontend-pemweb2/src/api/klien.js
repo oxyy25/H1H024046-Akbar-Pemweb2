@@ -1,7 +1,8 @@
 import axios from 'axios'
+import { backend } from './konfigurasi'
 
 const klien = axios.create({
-  baseURL: import.meta.env.VITE_API_FIBER,
+  baseURL: backend.baseURL,
   headers: {
     Accept: 'application/json',
     'Content-Type': 'application/json',
@@ -11,11 +12,9 @@ const klien = axios.create({
 
 klien.interceptors.request.use((konfigurasi) => {
   const token = sessionStorage.getItem('token')
-
   if (token) {
     konfigurasi.headers.Authorization = `Bearer ${token}`
   }
-
   return konfigurasi
 })
 
@@ -26,7 +25,6 @@ klien.interceptors.response.use(
       sessionStorage.removeItem('token')
       window.location.href = '/login'
     }
-
     return Promise.reject(galat)
   }
 )

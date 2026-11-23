@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
-import { ambilDaftarMahasiswa } from '../api/layananMahasiswa'
+import { Link } from 'react-router-dom'
+import { ambilDaftarMahasiswa, hapusMahasiswa } from '../api/layananMahasiswa'
+import { backend } from '../api/konfigurasi'
 
 export default function DaftarMahasiswa() {
   const [daftar, setDaftar] = useState([])
@@ -8,6 +10,7 @@ export default function DaftarMahasiswa() {
   const [cari, setCari] = useState('')
   const [sedangMemuat, setSedangMemuat] = useState(false)
   const [pesanGalat, setPesanGalat] = useState('')
+  const [versi, setVersi] = useState(0)
 
   useEffect(() => {
     let dibatalkan = false
@@ -15,23 +18,19 @@ export default function DaftarMahasiswa() {
     async function muatData() {
       setSedangMemuat(true)
       setPesanGalat('')
-
       try {
         const hasil = await ambilDaftarMahasiswa({
           page: halaman,
           cari: cari,
           per_halaman: 10,
         })
-
         if (dibatalkan === false) {
           setDaftar(hasil.data)
-          setMeta(hasil.meta)
+          setMeta(backend.bacaMeta(hasil.meta))
         }
       } catch (galat) {
         if (dibatalkan === false) {
-          setPesanGalat(
-            galat.response ? galat.response.data.pesan : 'Tidak dapat menghubungi server'
-          )
+          setPesanGalat('Gagal memuat data mahasiswa')
         }
       } finally {
         if (dibatalkan === false) {
@@ -41,69 +40,84 @@ export default function DaftarMahasiswa() {
     }
 
     const penunda = setTimeout(muatData, 400)
-
     return () => {
       dibatalkan = true
       clearTimeout(penunda)
     }
-  }, [halaman, cari])
+  }, [halaman, cari, versi])
+
+  async function tanganiHapus(mahasiswa) {
+    const yakin = window.confirm(
+      `Hapus ${mahasiswa.nama} (${mahasiswa.nim})? Tindakan ini tidak dapat dibatalkan.`
+    )
+    if (!yakin) return
+
+    try {
+      await hapusMahasiswa(mahasiswa.id)
+      if (daftar.length === 1 && halaman > 1) {
+        setHalaman(halaman - 1)
+      } else {
+        setVersi((v) => v + 1)
+      }
+    } catch (galat) {
+      setPesanGalat('Gagal menghapus data mahasiswa')
+    }
+  }
 
   return (
-    <div>
+    <div style={{ maxWidth: 900, margin: '40px auto' }}>
       <h1>Daftar Mahasiswa</h1>
-
       <input
-        type="text"
+        type="search"
+        placeholder="Cari nama atau NIM"
         value={cari}
         onChange={(peristiwa) => {
           setHalaman(1)
           setCari(peristiwa.target.value)
         }}
-      />
+      />{' '}
+      <Link to="/mahasiswa/tambah">+ Tambah Mahasiswa</Link>
 
       {sedangMemuat && <p>Memuat data</p>}
-      {pesanGalat && <p>{pesanGalat}</p>}
-      {sedangMemuat === false && daftar.length === 0 && (
-        <p>Data tidak ditemukan</p>
-      )}
+      {pesanGalat && <p style={{ color: 'crimson' }}>{pesanGalat}</p>}
+      {sedangMemuat === false && daftar.length === 0 && <p>Data tidak ditemukan</p>}
 
-      <table>
+      <table border="1" cellPadding="8" style={{ width: '100%', marginTop: 16 }}>
         <thead>
           <tr>
             <th>NIM</th>
             <th>Nama</th>
             <th>Angkatan</th>
             <th>IPK</th>
+            <th>Aksi</th>
           </tr>
         </thead>
         <tbody>
           {daftar.map((mahasiswa) => (
-            <tr key={mahasiswa.nim}>
+            <tr key={mahasiswa.id}>
               <td>{mahasiswa.nim}</td>
               <td>{mahasiswa.nama}</td>
               <td>{mahasiswa.angkatan}</td>
               <td>{mahasiswa.ipk}</td>
+              <td>
+                <button onClick={() => tanganiHapus(mahasiswa)}>Hapus</button>
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
 
       {meta && (
-        <div>
-          <button
-            onClick={() => setHalaman(halaman - 1)}
-            disabled={halaman <= 1}
-          >
+        <div style={{ marginTop: 16 }}>
+          <button onClick={() => setHalaman(halaman - 1)} disabled={halaman <= 1}>
             Sebelumnya
           </button>
-
-          <span>
-            Halaman {meta.current_page} dari {meta.last_page}
+          <span style={{ margin: '0 12px' }}>
+            Halaman {meta.halamanSaatIni} dari {meta.totalHalaman}
           </span>
-
           <button
             onClick={() => setHalaman(halaman + 1)}
-            disabled={meta.current_page >= meta.last_page}
+            disabled={meta.halamanSaatIni >= meta.totalHalaman}
           >
             Berikutnya
           </button>
